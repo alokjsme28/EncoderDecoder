@@ -26,42 +26,41 @@ except Exception as e:
     st.error(f"Model load failed: {e}")
 # model = load_model('encdec_hamlet.h5')
 
-# 2. Re-extract the Encoder
-# We grab the input and the internal states (h and c) from the trained layers
-encoder_inputs = model.input[0] # encoder_input_data
-encoder_outputs, state_h_enc, state_c_enc = model.get_layer('lstm').output 
+# 3. RE-EXTRACT ENCODER
+# In Keras 3, if you have multiple inputs, they are in a list
+encoder_inputs = model.input[0] 
+
+# Get the LSTM layer by name (Check your notebook for the exact name!)
+# Usually 'lstm' or 'lstm_1'
+encoder_lstm = model.get_layer('lstm') 
+_, state_h_enc, state_c_enc = encoder_lstm.output
 encoder_states = [state_h_enc, state_c_enc]
+
 encoder_model = Model(encoder_inputs, encoder_states)
 
-# 3. Re-extract the Decoder
-# 3. Re-extract Decoder (The 'Surgery' part)
-latent_dim = 256 # Same as your training
-decoder_inputs = model.input[1] # This is the decoder_input_data placeholder
+# 4. RE-EXTRACT DECODER
+latent_dim = 256 # Match your training size
+decoder_inputs = model.input[1] # The second input (target sequences)
 
-# Create placeholders for the states we will pass in manually during the loop
-decoder_state_input_h = Input(shape=(latent_dim,), name="input_h")
-decoder_state_input_c = Input(shape=(latent_dim,), name="input_c")
+# Placeholders for the states we pass in manually during loops
+decoder_state_input_h = Input(shape=(latent_dim,), name="input_h_inf")
+decoder_state_input_c = Input(shape=(latent_dim,), name="input_c_inf")
 decoder_states_inputs = [decoder_state_input_h, decoder_state_input_c]
 
-# Grab the layers by their names from the trained model
-dec_emb_layer = model.get_layer('embedding_1') 
+# Grab the trained layers
+dec_emb_layer = model.get_layer('embedding_1')
 dec_lstm_layer = model.get_layer('lstm_1')
 dec_dense_layer = model.get_layer('dense')
 
-# Re-connect the layers for the inference flow
-# Word ID -> Embedding -> LSTM (using manual state inputs) -> Dense
+# Connect them for inference
 dec_emb_inf = dec_emb_layer(decoder_inputs)
 decoder_outputs, state_h, state_c = dec_lstm_layer(
     dec_emb_inf, initial_state=decoder_states_inputs
 )
 
-decoder_states = [state_h, state_c]
-decoder_outputs = dec_dense_layer(decoder_outputs)
-
-# Define the standalone Decoder Model
 decoder_model = Model(
     [decoder_inputs] + decoder_states_inputs,
-    [decoder_outputs] + decoder_states
+    [dec_dense_layer(decoder_outputs)] + [state_h, state_c]
 )
 
 def generate_response(input_text,max_encoder_seq_length=None):
