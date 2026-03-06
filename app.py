@@ -9,7 +9,16 @@ import os
 
 # --- 1. SETTINGS (IMPORTANT) ---
 # Check your training notebook for this value!
-MAX_ENC_LEN = 20  # Set this to your actual training length
+MAX_ENC_LEN = None  # Set this to your actual training length
+
+# Debug line: this will print exactly what Streamlit sees in the logs
+st.write(f"Current Directory: {os.getcwd()}")
+st.write(f"Files found: {os.listdir('.')}")
+
+# Loading logic with st.stop() to prevent the NameError
+if not os.path.exists('encdec_hamlet.h5'):
+    st.error("File 'encdec_hamlet.h5' not found in the directory!")
+    st.stop()
 
 # --- 2. LOAD TOKENIZER ---
 try:
