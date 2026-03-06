@@ -13,8 +13,18 @@ with open('tokenizer.pkl','rb') as obj:
 
 from tensorflow.keras.models import load_model, Model
 from tensorflow.keras.layers import Input
+import tensorflow as tf
+# The 'NotEqual' layer is just a logical comparison (x != 0)
+# We map the old name to the functional equivalent in the new version
+custom_objects = {"NotEqual": tf.math.not_equal}
 
-model = load_model('encdec_hamlet.h5')
+try:
+    # Load with the custom object mapping
+    model = load_model('encdec_hamlet.h5', custom_objects=custom_objects)
+    st.success("Model loaded successfully!")
+except Exception as e:
+    st.error(f"Model load failed: {e}")
+# model = load_model('encdec_hamlet.h5')
 
 # 2. Re-extract the Encoder
 # We grab the input and the internal states (h and c) from the trained layers
