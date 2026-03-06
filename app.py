@@ -33,7 +33,7 @@ custom_objects = {"NotEqual": tf.math.not_equal}
 
 try:
     # Ensure this file exists on GitHub (unzipped)
-    model = load_model('encdec_hamlet.h5', custom_objects=custom_objects)
+    model = load_model('encdec_hamlet.h5', custom_objects=custom_objects, compile=False)
     st.success("Model loaded successfully!")
 except Exception as e:
     st.error(f"Model load failed: {e}. Check if encdec_hamlet.h5 is in the repo.")
