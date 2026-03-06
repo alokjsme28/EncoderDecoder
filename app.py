@@ -13,14 +13,8 @@ with open('tokenizer.pkl','rb') as obj:
 
 from tensorflow.keras.models import load_model, Model
 from tensorflow.keras.layers import Input
-import tensorflow
 
-# Define the "Missing" layer that the new Keras doesn't recognize
-custom_objects = {"NotEqual": tensorflow.math.not_equal}
-
-# Load the model with the custom_objects mapping
-model = load_model('encdec_hamlet.h5', custom_objects=custom_objects)
-#model = load_model('encdec_hamlet.h5')
+model = load_model('encdec_hamlet.h5')
 
 # 2. Re-extract the Encoder
 # We grab the input and the internal states (h and c) from the trained layers
