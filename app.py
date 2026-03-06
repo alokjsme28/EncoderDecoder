@@ -6,7 +6,7 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 import os
 #Load Model
 
-model = load_model('encdec_model.h5') # Since unable to upload model in github due to size
+model = load_model('encdec_hamlet.h5') # Since unable to upload model in github due to size
 
 # Load Tokenizer
 with open('tokenizer.pkl','rb') as obj:
